@@ -1,0 +1,4 @@
+#ifndef VERTEXPROCESS_H
+#define VERTEXPROCESS_H
+
+#endif // VERTEXPROCESS_H

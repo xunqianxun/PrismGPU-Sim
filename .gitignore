@@ -1,2 +1,4 @@
 # ignore VScode file 
 .vscode/
+# ignore Running Message
+log.txt

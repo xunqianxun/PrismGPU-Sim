@@ -1,12 +1,14 @@
-#include <vector>
 #include <assert.h>
 #include <cstdint>
-#include <eigen3/Eigen/Dense>
+#include "common.h"
 
-struct MashEntry
+struct MashEntry //从某种意义上来说它本身就是VAO数据,只不过存储了个更多的信息
 {
     int TopologyType; 
     int EBOOffset;
+    int EBOCount; //之所以有count的目的还是为了规定每一个部分的内存范围
+    int VBOOffset;
+    int VBOCount;
     Eigen::Vector3f AmbientColor;
     Eigen::Vector3f DiffuseColor;
     Eigen::Vector3f SpecularColor;
@@ -15,11 +17,19 @@ struct MashEntry
     int BUMPOffset; //还有很多关于光线追踪和材质的信息没有加，等待进一步的设计增加
 };
 
-
-struct FrameTesk
+struct MashSetup
 {
-    int TaskStartAddr;
-    std::vector<MashEntry> MashEntries;
+    Eigen::Matrix3f RotateMatrix; //用于物体的旋转
+    Eigen::Matrix3f TranslateVector; //用于物体的平移
+    Eigen::Matrix3f ScaleVector; //用于物体的缩放
+    Eigen::Matrix3f ViewMatrix; //用于摄像机的视角转换
+    Eigen::Matrix3f ProjectionMatrix; //用于投影转换
+};
+
+struct FrameTask
+{
+    int MashSetups; //本身应该是一个指针队列因为一个帧渲染任务会有很多的Mesh 
+    int MashEntries;
 };
 
 class Vram

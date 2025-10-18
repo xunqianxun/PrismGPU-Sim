@@ -1,0 +1,4 @@
+#ifndef INPUTASSEMBLE_H
+#define INPUTASSEMBLE_H
+
+#endif // INPUTASSEMBLE_H

@@ -1,5 +1,5 @@
 #include <iostream> 
-#include<eigen3/Eigen/Dense>
+#include "common.h"
 
 enum Wave32fMulType{
     Wave32fMulSrc1=1,
