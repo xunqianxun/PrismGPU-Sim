@@ -14,12 +14,9 @@
 
     };
 
-    struct TestVBO {
-        Eigen::Vector3f positions;
-        Eigen::Vector3f normals;
-        Eigen::Vector3f colors;
-        Eigen::Vector2f texcoords;
+    struct TriangleAssemble
+    {
+        Eigen::Matrix3f vertices; // 三角形的三个顶点
     };
-
 
 #endif // COMMON_H

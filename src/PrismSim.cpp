@@ -4,6 +4,8 @@
 #include "Vram.hpp"
 #include "common.h"
 #include "stb_image.h"
+#include "InputAssimble.h"
+
 
 #define PCIEWORK 
 
@@ -29,7 +31,6 @@ int main(int argc, char* argv[]) {
     else 
     {
         std::string testfile = argv[1];
-        Vram vram;
 
         std::vector<TestVBO> VBO = {
 
@@ -127,6 +128,7 @@ int main(int argc, char* argv[]) {
                              .EBOOffset = NowEBO,
                              .EBOCount = static_cast<int>(EBO.size()),
                              .VBOOffset = NowVBO,
+                             .VBOAtribute = sizeof(TestVBO),
                              .VBOCount = static_cast<int>(VBO.size()),
                              .AmbientColor = {0.005f, 0.005f, 0.005f},
                              .DiffuseColor = {0.5f, 0.5f, 0.5f},
@@ -143,11 +145,11 @@ int main(int argc, char* argv[]) {
         }
 
         MashSetup Setupone = {
-            .RotateMatrix = Eigen::Matrix3f::Identity(),
-            .TranslateVector = Eigen::Matrix3f::Identity(),
-            .ScaleVector = Eigen::Matrix3f::Identity(),
-            .ViewMatrix = Eigen::Matrix3f::Identity(),
-            .ProjectionMatrix = Eigen::Matrix3f::Identity()
+            .RotateMatrix = Eigen::Matrix4f::Identity(),
+            .TranslateVector = Eigen::Matrix4f::Identity(),
+            .ScaleVector = Eigen::Matrix4f::Identity(),
+            .ViewMatrix = Eigen::Matrix4f::Identity(),
+            .ProjectionMatrix = Eigen::Matrix4f::Identity()
         };
 
         int MeshSetupAddr = vram.GetUsedAddr();
@@ -156,7 +158,7 @@ int main(int argc, char* argv[]) {
             LOG_ERROR("Mash Setup Write in VRAM Failed!");
         }
 
-        FrameTask FrameOne = { //相当于只有一个项的任务队列，正常来说应该有一个ringbuffer结构体来存放这几个结构体，总之这些完全由CPU端来管理，模式暂时简单些
+        FrameOne = { //相当于只有一个项的任务队列，正常来说应该有一个ringbuffer结构体来存放这几个结构体，总之这些完全由CPU端来管理，模式暂时简单些
             .MashSetups = MeshSetupAddr,
             .MashEntries = MeshTaskAddr
         };
@@ -175,8 +177,14 @@ int main(int argc, char* argv[]) {
         //-----
 
         //TODO: 其次渲染时可以看是否有任务，如果没有任务的话可以一直输当前的已经渲染结果
-        InputAssimble(FrameOne);
-        VerTexShaderProcess(FrameOne);
+        TriangleAssemble triA, triB, triC;
+        if(InputAssimble(FrameOne, triA, triB, triC) == 0) {
+            LOG_INFO("Input Assemble Success!");
+        } else {
+            LOG_ERROR("Input Assemble Failed!");
+            continue;
+        }
+        VerTexShaderProcess(FrameOne, triA, triB, triC);
         RasterizerProcess(FrameOne);
         FragmentShaderProcess(FrameOne);
         DisplayProcess(FrameOne);

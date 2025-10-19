@@ -2,12 +2,20 @@
 #include <cstdint>
 #include "common.h"
 
+struct TestVBO {
+    Eigen::Vector3f positions;
+    Eigen::Vector3f normals;
+    Eigen::Vector3f colors;
+    Eigen::Vector2f texcoords;
+};
+
 struct MashEntry //从某种意义上来说它本身就是VAO数据,只不过存储了个更多的信息
 {
     int TopologyType; 
     int EBOOffset;
     int EBOCount; //之所以有count的目的还是为了规定每一个部分的内存范围
     int VBOOffset;
+    int VBOAtribute; //每个顶点属性的大小
     int VBOCount;
     Eigen::Vector3f AmbientColor;
     Eigen::Vector3f DiffuseColor;
@@ -19,11 +27,11 @@ struct MashEntry //从某种意义上来说它本身就是VAO数据,只不过存
 
 struct MashSetup
 {
-    Eigen::Matrix3f RotateMatrix; //用于物体的旋转
-    Eigen::Matrix3f TranslateVector; //用于物体的平移
-    Eigen::Matrix3f ScaleVector; //用于物体的缩放
-    Eigen::Matrix3f ViewMatrix; //用于摄像机的视角转换
-    Eigen::Matrix3f ProjectionMatrix; //用于投影转换
+    Eigen::Matrix4f RotateMatrix; //用于物体的旋转
+    Eigen::Matrix4f TranslateVector; //用于物体的平移
+    Eigen::Matrix4f ScaleVector; //用于物体的缩放
+    Eigen::Matrix4f ViewMatrix; //用于摄像机的视角转换
+    Eigen::Matrix4f ProjectionMatrix; //用于投影转换
 };
 
 struct FrameTask
@@ -68,3 +76,7 @@ class Vram
           
         
  };
+
+ Vram vram;
+
+ FrameTask FrameOne;

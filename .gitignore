@@ -1,4 +1,6 @@
 # ignore VScode file 
 .vscode/
+# ignore .github
+.github/
 # ignore Running Message
 log.txt
