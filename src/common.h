@@ -14,9 +14,19 @@
 
     };
 
-    struct TriangleAssemble
-    {
-        Eigen::Matrix3f vertices; // 三角形的三个顶点
+    struct IAToVertex{
+        Eigen::Matrix4f TriVertexPos ;
+        Eigen::Matrix3f Normal ;
+        Eigen::Matrix3f Color ;
+        std::array<Eigen::Vector2f, 3> TexCoord ;
     };
+
+    typedef Eigen::Matrix4f  TriangleAssemble;
+
+    struct VSToRaster {
+        Eigen::Matrix4f MVPtransfer ;
+        Eigen::Matrix4f NoProject   ;
+    };
+
 
 #endif // COMMON_H

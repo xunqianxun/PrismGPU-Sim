@@ -5,6 +5,7 @@
 #include "common.h"
 #include "stb_image.h"
 #include "InputAssimble.h"
+#include "VertexProcess.h"
 
 
 #define PCIEWORK 
@@ -166,6 +167,8 @@ int main(int argc, char* argv[]) {
     } 
 #endif 
     SDL_Event event;
+    VSToRaster VtoRast ;
+
     bool running = true;
     while (running) {
         SDL_PollEvent(&event);
@@ -176,16 +179,10 @@ int main(int argc, char* argv[]) {
 
         //-----
 
-        //TODO: 其次渲染时可以看是否有任务，如果没有任务的话可以一直输当前的已经渲染结果
-        TriangleAssemble triA, triB, triC;
-        if(InputAssimble(FrameOne, triA, triB, triC) == 0) {
-            LOG_INFO("Input Assemble Success!");
-        } else {
-            LOG_ERROR("Input Assemble Failed!");
-            continue;
-        }
-        VerTexShaderProcess(FrameOne, triA, triB, triC);
-        RasterizerProcess(FrameOne);
+        //TODO: 其次渲染时可以看是否有任务，如果没有任务的话可以一直输当前的已经渲染结
+        IAToVertex VtoRast
+        VtoRast = VertexShaderProcess(FrameOne);
+        RasterizerProcess(FrameOne, VtoRast);
         FragmentShaderProcess(FrameOne);
         DisplayProcess(FrameOne);
         SDL_Delay(16);
