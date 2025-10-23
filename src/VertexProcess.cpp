@@ -66,18 +66,30 @@
         InvertM = vertexProcessor.SFUMatrixTranslate(NoProjectSource);
         TransposeM = vertexProcessor.SFUMatrixTranslate(InvertM);
 
+        Eigen::Matrix4f NormalMatrix ;
+        NormalMatrix.setZero();
+        NormalMatrix.topLeftCorner<3,3>() = TransposeM.topLeftCorner<3,3>();
+
         Eigen::Matrix4f Normal4f ;
         Normal4f.setZero();
         Normal4f.topLeftCorner<3,3>() = InAssmbData.Normal;
 
-        vertexProcessor.MatrixLoad(TransposeM, "SrcOne");
+        vertexProcessor.MatrixLoad(NormalMatrix, "SrcOne");
         vertexProcessor.MatrixLoad(Normal4f, "SrcTwo");
-        vertexProcessor.MatrixMulProcess(); //先这样，明天在改，还差没有把法线转换过来，以及组成先后传递的株距结构。
+        vertexProcessor.MatrixMulProcess(); 
+        vertexProcessor.GetMatrix(NoProjectResult);
+        Eigen::Matrix4f NormalResult ;
+        vertexProcessor.GetMatrix(NormalResult);
 
         VSToRaster VsResult ;
+        Eigen::Matrix4f VertexPos;
+        VertexPos = vertexProcessor.Homegeness2Screen(MVPReault, HEIGHT, WIDTH, NEAR, FAR);
 
-        VsResult.MVPtransfer = MVPReault ;
-        VsResult.NoProject = NoProjectResult ;
+        VsResult.TriVertexPos = VertexPos ;
+        VsResult.TriVertexNoProj = NoProjectResult ;
+        VsResult.Normal = NormalResult.topLeftCorner<3,3>();
+        VsResult.TexCoord = InAssmbData.TexCoord ;
+        VsResult.Color = InAssmbData.Color ;
 
         return VsResult;
     }
