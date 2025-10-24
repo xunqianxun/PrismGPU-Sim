@@ -3,8 +3,21 @@
 
 ResterizerProcess Rasterizer;
 
+float IndexZbufferGet(Eigen::Vector2i Index){
+    float DepthData ;
+
+    int ramindex = Index.y() * WIDTH + Index.x();
+    int offset = ZbufferStart + ramindex ;
+
+    std::vector<uint8_t> bytes;
+    vram.read(offset, bytes, sizeof(float));    
+    std::memcpy(&DepthData, bytes.data(), sizeof(float));
+    return DepthData;
+}
+
 std::vector<RasterToPixel> RasterizerProcessor(FrameTask &InFramTask, VSToRaster &InTriAmb){
     std::vector<RasterToPixel> ResterReturn;
+    float Zdata ;
 
     Eigen::Vector4f InV1, InV2, InV3;
     InV1 = InTriAmb.TriVertexPos.col(0);
@@ -24,6 +37,7 @@ std::vector<RasterToPixel> RasterizerProcessor(FrameTask &InFramTask, VSToRaster
                 continue;
             }
             else {
+                Zdata = IndexZbufferGet({x,y});
                 BaryData = Rasterizer.PointBaryCentrie(x, y);
                 float AlphaW = BaryData.alpha / InV1.w();
                 float BetaW = BaryData.beta / InV2.w();

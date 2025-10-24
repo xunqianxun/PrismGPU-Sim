@@ -15,7 +15,7 @@
     };
 
     // now we const width and height
-    #define WIDTH  720
+    #define WIDTH  640
     #define HEIGHT  480 
 
     // const near and far also 

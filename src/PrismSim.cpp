@@ -166,9 +166,14 @@ int main(int argc, char* argv[]) {
 
     } 
 #endif 
-    SDL_Event event;
-    VSToRaster VtoRast ;
 
+    //zbuffer init
+    std::vector<float> zdata(WIDTH * HEIGHT, -FLT_MAX);
+    std::vector<uint8_t> bytes(zdata.size() * sizeof(float));
+    std::memcpy(bytes.data(), zdata.data(), bytes.size());
+    vram.write(ZbufferStart, bytes);
+
+    SDL_Event event;
     bool running = true;
     while (running) {
         SDL_PollEvent(&event);
@@ -179,9 +184,11 @@ int main(int argc, char* argv[]) {
 
         //-----
 
-        //TODO: 其次渲染时可以看是否有任务，如果没有任务的话可以一直输当前的已经渲染结
-        IAToVertex VtoRast
-        VtoRast = VertexShaderProcess(FrameOne);
+        //TODO: 其次渲染时可以看是否有任务，如果没有任务的话可以一直输当前的已经渲染结果
+        IAToVertex TriAmbToV;
+        VSToRaster VtoRast ;
+        TriAmbToV = InputAssimble(FrameOne);
+        VtoRast = VertexShaderProcess(FrameOne, TriAmbToV);
         RasterizerProcess(FrameOne, VtoRast);
         FragmentShaderProcess(FrameOne);
         DisplayProcess(FrameOne);

@@ -2,6 +2,10 @@
 #include <cstdint>
 #include "common.h"
 
+
+#define FrambufferStart 1024 * 1024 * 64 - (WIDTH * HEIGHT * 12)
+#define ZbufferStart FrambufferStart - (WIDTH * HEIGHT * 4) - 4
+
 struct TestVBO {
     Eigen::Vector3f positions;
     Eigen::Vector3f normals;
