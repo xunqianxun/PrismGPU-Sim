@@ -15,6 +15,16 @@ float IndexZbufferGet(Eigen::Vector2i Index){
     return DepthData;
 }
 
+float IndexZbufferSet(Eigen::Vector2i Index, float InDepth){
+    int ramindex = Index.y() * WIDTH + Index.x();
+    int offset = ZbufferStart + ramindex ;
+
+    std::vector<uint8_t> bytes(sizeof(float));
+    std::memcpy(bytes.data(), &InDepth, sizeof(float));
+    vram.write(offset, bytes);    
+    return InDepth;
+}
+
 std::vector<RasterToPixel> RasterizerProcessor(FrameTask &InFramTask, VSToRaster &InTriAmb){
     std::vector<RasterToPixel> ResterReturn;
     float Zdata ;
@@ -24,6 +34,11 @@ std::vector<RasterToPixel> RasterizerProcessor(FrameTask &InFramTask, VSToRaster
     InV2 = InTriAmb.TriVertexPos.col(1);
     InV3 = InTriAmb.TriVertexPos.col(2);
     Rasterizer.LoadVertex(InV1,InV2, InV3);
+
+    Eigen::Vector3f InVNProj1, InVNProj2, InVNProj3;
+    InVNProj1 = InTriAmb.TriVertexNoProj.col(0).head<3>();
+    InVNProj2 = InTriAmb.TriVertexNoProj.col(1).head<3>();
+    InVNProj3 = InTriAmb.TriVertexNoProj.col(2).head<3>();
 
     Bounding BoundData;
     Barycentrie BaryData;
@@ -43,9 +58,20 @@ std::vector<RasterToPixel> RasterizerProcessor(FrameTask &InFramTask, VSToRaster
                 float BetaW = BaryData.beta / InV2.w();
                 float GammaW = BaryData.gamma / InV3.w();
 
-                float Zweight = 1.0f / (AlphaW + BetaW + GammaW);
+                float Zweight = 1.0f / (AlphaW + BetaW + GammaW); //w↑⇒zbuffer​↑,所以可以使用Zweight来进行深度比较
 
-                if()
+                if(Zweight > Zdata){
+                    IndexZbufferSet({x,y}, Zweight);
+
+                    RasterToPixel PixelData;
+                    PixelData.index = {x, y};
+                    PixelData.Word3DPoint = (InVNProj1 * AlphaW + InVNProj2 * BetaW + InVNProj3 * GammaW) * Zweight ;
+                    PixelData.Normal = BaryData.alpha * InTriAmb.Normal.col(0) / InV1.w() + BaryData.beta * InTriAmb.Normal.col(1) / InV2.w() + BaryData.gamma * InTriAmb.Normal.col(2) / InV3.w();
+                    PixelData.TexCoord = BaryData.alpha * InTriAmb.TexCoord[0] / InV1.w() + BaryData.beta * InTriAmb.TexCoord[1] / InV2.w() + BaryData.gamma * InTriAmb.TexCoord[2] / InV3.w();
+                    PixelData.Color = BaryData.alpha * InTriAmb.Color.col(0) / InV1.w() + BaryData.beta * InTriAmb.Color.col(1) / InV2.w() + BaryData.gamma * InTriAmb.Color.col(2) / InV3.w();
+
+                    ResterReturn.push_back(PixelData);
+                }
 
             }
 
