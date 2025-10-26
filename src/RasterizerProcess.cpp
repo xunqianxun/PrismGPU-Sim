@@ -66,9 +66,9 @@ std::vector<RasterToPixel> RasterizerProcessor(FrameTask &InFramTask, VSToRaster
                     RasterToPixel PixelData;
                     PixelData.index = {x, y};
                     PixelData.Word3DPoint = (InVNProj1 * AlphaW + InVNProj2 * BetaW + InVNProj3 * GammaW) * Zweight ;
-                    PixelData.Normal = BaryData.alpha * InTriAmb.Normal.col(0) / InV1.w() + BaryData.beta * InTriAmb.Normal.col(1) / InV2.w() + BaryData.gamma * InTriAmb.Normal.col(2) / InV3.w();
-                    PixelData.TexCoord = BaryData.alpha * InTriAmb.TexCoord[0] / InV1.w() + BaryData.beta * InTriAmb.TexCoord[1] / InV2.w() + BaryData.gamma * InTriAmb.TexCoord[2] / InV3.w();
-                    PixelData.Color = BaryData.alpha * InTriAmb.Color.col(0) / InV1.w() + BaryData.beta * InTriAmb.Color.col(1) / InV2.w() + BaryData.gamma * InTriAmb.Color.col(2) / InV3.w();
+                    PixelData.Normal = (InTriAmb.Normal.col(0) * AlphaW + InTriAmb.Normal.col(1) * BetaW + InTriAmb.Normal.col(2) * GammaW) * Zweight ;
+                    PixelData.TexCoord = (InTriAmb.TexCoord[0] * AlphaW + InTriAmb.TexCoord[1] * BetaW + InTriAmb.TexCoord[2] * GammaW) * Zweight ;
+                    PixelData.Color = (InTriAmb.Color.col(0) * AlphaW + InTriAmb.Color.col(1) * BetaW + InTriAmb.Color.col(2) * GammaW) * Zweight ;
 
                     ResterReturn.push_back(PixelData);
                 }

@@ -6,6 +6,7 @@
 #include "stb_image.h"
 #include "InputAssimble.h"
 #include "VertexProcess.h"
+#include "RasterizerProcess.h"
 
 
 #define PCIEWORK 
@@ -173,6 +174,7 @@ int main(int argc, char* argv[]) {
     std::memcpy(bytes.data(), zdata.data(), bytes.size());
     vram.write(ZbufferStart, bytes);
 
+
     SDL_Event event;
     bool running = true;
     while (running) {
@@ -187,10 +189,11 @@ int main(int argc, char* argv[]) {
         //TODO: 其次渲染时可以看是否有任务，如果没有任务的话可以一直输当前的已经渲染结果
         IAToVertex TriAmbToV;
         VSToRaster VtoRast ;
+        std::vector<RasterToPixel> RasterData;
         TriAmbToV = InputAssimble(FrameOne);
         VtoRast = VertexShaderProcess(FrameOne, TriAmbToV);
-        RasterizerProcess(FrameOne, VtoRast);
-        FragmentShaderProcess(FrameOne);
+        RasterData = RasterizerProcessor(FrameOne, VtoRast);
+        FragmentShaderProcess(FrameOne,RasterData);
         DisplayProcess(FrameOne);
         SDL_Delay(16);
     }

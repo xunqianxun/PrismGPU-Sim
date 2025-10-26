@@ -3,6 +3,8 @@
 
 #include "common.h"
 
+std::vector<RasterToPixel> RasterizerProcessor(FrameTask &InFramTask, VSToRaster &InTriAmb);
+
 struct Bounding {
     float Minx ;
     float Maxx ;
