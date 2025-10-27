@@ -2,7 +2,10 @@
 #define COMMON_H
 
 #include <eigen3/Eigen/Dense>
+#include <algorithm>
 #include <vector>
+#include <string>
+#include <array>
 #include "Log.h"
 
 #define TEMPTEST 
