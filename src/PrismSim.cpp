@@ -1,12 +1,11 @@
 #define STB_IMAGE_IMPLEMENTATION
-#include <algorithm>
-#include <SDL2/SDL.h>
 #include "Vram.hpp"
 #include "common.h"
 #include "stb_image.h"
 #include "InputAssimble.h"
 #include "VertexProcess.h"
 #include "RasterizerProcess.h"
+#include "FragmentProcess.h"
 
 
 #define PCIEWORK 
@@ -18,11 +17,14 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     // creat a windows
-    SDL_Window* window = SDL_CreateWindow("PrismGPU-Sim", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN);
+    SDL_Window* window = SDL_CreateWindow("PrismGPU-Sim", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
     if (!window) {
         SDL_Quit();
         return 1;
     }
+
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
 #ifdef PCIEWORK
     if(argc != 2 )
     {
@@ -94,6 +96,7 @@ int main(int argc, char* argv[]) {
         };
 
         int NowEBO = vram.GetUsedAddr();
+        int NowTEX;
         State = vram.write(NowEBO, std::vector<uint8_t>(reinterpret_cast<uint8_t*>(EBO.data()), reinterpret_cast<uint8_t*>(EBO.data()) + sizeof(Eigen::Vector3i) * EBO.size()));
         if(!State){
             LOG_ERROR("EBO Data Write in VRAM Failed!");
@@ -101,9 +104,10 @@ int main(int argc, char* argv[]) {
 
         int width, height, channels;
         std::vector<Eigen::Vector3f> textureData;
-        unsigned char* ImgState = stbi_load(testfile.c_str(), &width, &height, &channels, 3); 
+        unsigned char* ImgState = stbi_load(testfile.c_str(), &width, &height, &channels, 3);  //这个数组从左到右，从上到下
 
         if(!ImgState){
+            NowTEX = NULL;
             SDL_Quit();
             stbi_image_free(ImgState);
             LOG_ERROR("Failed to load texture image!");
@@ -119,7 +123,7 @@ int main(int argc, char* argv[]) {
             }
         }
         stbi_image_free(ImgState);
-        int NowTEX = vram.GetUsedAddr();
+        NowTEX = vram.GetUsedAddr();
         State = vram.write(NowTEX, std::vector<uint8_t>(reinterpret_cast<uint8_t*>(textureData.data()), reinterpret_cast<uint8_t*>(textureData.data()) + sizeof(Eigen::Vector3f) * textureData.size()));
         if(!State){
             LOG_ERROR("Failed to write texture data to VRAM!");
@@ -193,7 +197,7 @@ int main(int argc, char* argv[]) {
         TriAmbToV = InputAssimble(FrameOne);
         VtoRast = VertexShaderProcess(FrameOne, TriAmbToV);
         RasterData = RasterizerProcessor(FrameOne, VtoRast);
-        FragmentShaderProcess(FrameOne,RasterData);
+        FragementShaderProcess(FrameOne,RasterData);
         DisplayProcess(FrameOne);
         SDL_Delay(16);
     }

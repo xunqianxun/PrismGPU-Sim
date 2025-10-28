@@ -21,10 +21,10 @@ struct MashEntry //从某种意义上来说它本身就是VAO数据,只不过存
     int VBOOffset;
     int VBOAtribute; //每个顶点属性的大小
     int VBOCount;
-    Eigen::Vector3f AmbientColor;
-    Eigen::Vector3f DiffuseColor;
-    Eigen::Vector3f SpecularColor;
-    float SpecularExponent;
+    Eigen::Vector3f AmbientColor; //环境光
+    Eigen::Vector3f DiffuseColor; //漫反射颜色光照下的主体颜色，搞错了，这个不应该在这里的他在有纹理的时候是纹理来决定，没有的时候是由颜色插值来决定
+    Eigen::Vector3f SpecularColor; //镜面反射颜色也就是高光
+    float SpecularExponent; //焯，应该是int呀，脑抽
     int TEXOffset;
     int BUMPOffset; //还有很多关于光线追踪和材质的信息没有加，等待进一步的设计增加
 };
@@ -57,7 +57,8 @@ class Vram
             return UsedAddr;
         }
 
-        bool write( int addr, const std::vector<uint8_t>& data) {
+        bool write( int addr, const std::vector<uint8_t>& data) 
+        {
             if (addr < 0 || addr + data.size() > memory_size) {
                 throw std::string("VRAM write out of bounds");  
                 return false; // Address out of bounds

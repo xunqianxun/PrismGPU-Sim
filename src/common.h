@@ -3,6 +3,7 @@
 
 #include <eigen3/Eigen/Dense>
 #include <algorithm>
+#include <SDL2/SDL.h>
 #include <vector>
 #include <string>
 #include <array>

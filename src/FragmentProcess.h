@@ -9,7 +9,7 @@ struct InPixelData {
     Eigen::Vector3f Normal ;
 };
 
-int FragmentShaderProcess(FrameTask &InFramTask, std::vector<RasterToPixel> &InRasterData);
+int FragementShaderProcess(FrameTask &InFramTask, std::vector<RasterToPixel> &InRasterData);
 
 class FragmentProcess{
     private:
@@ -35,10 +35,11 @@ class FragmentProcess{
             viewPos = Eigen::Vector3i(0, 0, 10); //相当于固定相机位置 这也就是说相机位置也被固定了。
         };
 
-        int LoadLightParam(Eigen::Vector3f Inka, Eigen::Vector3f Inkd, Eigen::Vector3f Inks) {
+        int LoadLightParam(Eigen::Vector3f Inka, Eigen::Vector3f Inkd, Eigen::Vector3f Inks, int InExp) {
             ka = Inka ;
             kd = Inkd ; //这个就算已经是采样器采样的到的数据了，或者是顶点插值后得到的颜色
             ks = Inks ;
+            Exp = InExp ;
             return 0;
         }
 
@@ -62,7 +63,7 @@ class FragmentProcess{
 
             FragColor = ambient + diffuse + specular;
 
-            return FragColor; 
+            return FragColor * 255.0f;
 
         }
 
