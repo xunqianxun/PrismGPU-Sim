@@ -1,5 +1,4 @@
 #include "RasterizerProcess.h"
-#include "Vram.hpp"
 
 ResterizerProcess Rasterizer;
 

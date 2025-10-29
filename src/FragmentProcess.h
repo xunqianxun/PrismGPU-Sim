@@ -2,6 +2,7 @@
 #define FRAGMENTPROCESS_H
 
 #include "common.h"
+#include "Vram.hpp"
 
 struct InPixelData {
     //Eigen::Vector2i index ; 不需要传入用不到

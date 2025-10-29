@@ -1,5 +1,4 @@
 #include "VertexProcess.h"
-#include "Vram.hpp"
 
     VSToRaster VertexShaderProcess(FrameTask &frameTask, IAToVertex &InAssmbData) {
 

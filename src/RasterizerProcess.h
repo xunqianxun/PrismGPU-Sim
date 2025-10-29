@@ -2,6 +2,7 @@
 #define RASTERIZERPROCESS_H
 
 #include "common.h"
+#include "Vram.hpp"
 
 std::vector<RasterToPixel> RasterizerProcessor(FrameTask &InFramTask, VSToRaster &InTriAmb);
 

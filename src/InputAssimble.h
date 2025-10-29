@@ -2,6 +2,7 @@
 #define INPUTASSEMBLE_H
 
 #include "common.h"
+#include "Vram.hpp"
 
 IAToVertex InputAssimble(const FrameTask& frameTask);
 

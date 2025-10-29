@@ -6,9 +6,12 @@
 #include "VertexProcess.h"
 #include "RasterizerProcess.h"
 #include "FragmentProcess.h"
+#include "Display.h"
 
 
 #define PCIEWORK 
+
+ FrameTask FrameOne;
 
 int main(int argc, char* argv[]) {
 
@@ -181,6 +184,8 @@ int main(int argc, char* argv[]) {
 
     SDL_Event event;
     bool running = true;
+    std::vector<Eigen::Vector3f> framebuffer(WIDTH * HEIGHT);
+
     while (running) {
         SDL_PollEvent(&event);
             if (event.type == SDL_QUIT) {
@@ -198,8 +203,13 @@ int main(int argc, char* argv[]) {
         VtoRast = VertexShaderProcess(FrameOne, TriAmbToV);
         RasterData = RasterizerProcessor(FrameOne, VtoRast);
         FragementShaderProcess(FrameOne,RasterData);
-        DisplayProcess(FrameOne);
-        SDL_Delay(16);
+
+        std::vector<uint8_t> framebufferi(WIDTH * HEIGHT * sizeof(Eigen::Vector3f));
+        vram.read(FrambufferStart, framebufferi, WIDTH * HEIGHT * sizeof(Eigen::Vector3f));
+
+        std::memcpy(framebuffer.data(), framebufferi.data(), WIDTH * HEIGHT * sizeof(Eigen::Vector3f));
+
+        displayFramebuffer(window, renderer, framebuffer, WIDTH, HEIGHT);
     }
     // destroy window and quit SDL
     SDL_DestroyWindow(window);

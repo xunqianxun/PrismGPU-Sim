@@ -1,1 +1,4 @@
-//NO Code
+#include "Vram.hpp"
+
+
+Vram vram;

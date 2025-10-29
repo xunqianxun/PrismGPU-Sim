@@ -4,3 +4,5 @@
 .github/
 # ignore Running Message
 log.txt
+# ignore build dir
+build/

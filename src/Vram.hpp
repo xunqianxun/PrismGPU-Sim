@@ -2,6 +2,7 @@
 #include <cstdint>
 #include "common.h"
 
+#pragma once
 
 #define FrambufferStart 1024 * 1024 * 64 - (WIDTH * HEIGHT * 12)
 #define ZbufferStart FrambufferStart - (WIDTH * HEIGHT * 4) - 4
@@ -78,10 +79,10 @@ class Vram
             std::copy(memory.begin() + addr, memory.begin() + addr + size, data.begin());
             return true;
         }
+
+
           
         
  };
 
- Vram vram;
-
- FrameTask FrameOne;
+ extern Vram vram;

@@ -12,7 +12,10 @@ class Simple {
         int Height;
         std::string  SimpleType;
     public:
-        Simple(int InWidth, int InHeight );
+        Simple(int InWidth, int InHeight ){
+            Width = InWidth ;
+            Height = InHeight ;
+        }
 
         Eigen::Vector3f SimpleProcess(int Base, Eigen::Vector2f InIndex, std::string SimpleType) {
             InIndex.x() = std::clamp(InIndex.x(), 0.0f, 1.0f);

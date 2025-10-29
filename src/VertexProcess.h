@@ -2,6 +2,8 @@
 #define VERTEXPROCESS_H
 
 #include "common.h"
+#include "Vram.hpp"
+
 
 VSToRaster VertexShaderProcess(FrameTask &frameTask, IAToVertex &InTriangle);
 

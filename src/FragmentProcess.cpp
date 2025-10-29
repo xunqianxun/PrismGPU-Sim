@@ -1,8 +1,7 @@
 #include "FragmentProcess.h"
-#include "Vram.hpp"
 #include "simple.h"
 
-Simple simple ;
+Simple simple(WIDTH, HEIGHT);
 
 int FragementShaderProcess(FrameTask &InFramTask, std::vector<RasterToPixel> &InRasterData){
     FragmentProcess fragmentProcessor;
@@ -37,7 +36,7 @@ int FragementShaderProcess(FrameTask &InFramTask, std::vector<RasterToPixel> &In
 
         Eigen::Vector3f ShadedColor = fragmentProcessor.PixelShading(PixelData);
 
-        vram.write(FrambufferStart, std::vector<uint8_t>(reinterpret_cast<uint8_t*>(ShadedColor.data()), reinterpret_cast<uint8_t*>(ShadedColor.data()) + sizeof(Eigen::Vector3f)));
+        vram.write(FrambufferStart, std::vector<uint8_t>(reinterpret_cast<uint8_t*>(ShadedColor.data()), reinterpret_cast<uint8_t*>(ShadedColor.data()) + sizeof(Eigen::Vector3f))); //也有问题其实直接用3i也是一样的
 
     }
 
