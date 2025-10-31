@@ -57,5 +57,5 @@ public:
 #define LOG_ERROR(msg)   logger.log(Logger::ERROR,   __FUNCTION__, msg)
 #define LOG_DEBUG(msg)   logger.log(Logger::DEBUG,   __FUNCTION__, msg)
 
-Logger logger;
+extern Logger logger;
 

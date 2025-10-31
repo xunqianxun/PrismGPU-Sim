@@ -16,7 +16,7 @@
 int main(int argc, char* argv[]) {
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        throw std::string("SDL_Init Error!");
+        LOG_INFO("SDL_Init Error!");
         return 1;
     }
     // creat a windows
@@ -32,12 +32,13 @@ int main(int argc, char* argv[]) {
     if(argc != 2 )
     {
         SDL_Quit();
-        throw std::string("Usage: ./PrismSim <testfile>");
+        LOG_INFO("Usage: ./app <testfile>");
         return 1;
     }
     else 
     {
         std::string testfile = argv[1];
+
 
         std::vector<TestVBO> VBO = {
 
@@ -78,7 +79,11 @@ int main(int argc, char* argv[]) {
 
         int NowVBO = vram.GetUsedAddr();
         bool State = true;
+
+        
+
         State = vram.write(NowVBO, std::vector<uint8_t>(reinterpret_cast<uint8_t*>(VBO.data()), reinterpret_cast<uint8_t*>(VBO.data()) + sizeof(TestVBO) * VBO.size()));
+        LOG_INFO("VBO Data Write in VRAM!");
         if(!State){
             LOG_ERROR("VBO Data Write in VRAM Failed!");
         }
@@ -100,6 +105,7 @@ int main(int argc, char* argv[]) {
 
         int NowEBO = vram.GetUsedAddr();
         int NowTEX;
+        LOG_INFO("EBO Data Write in VRAM!");
         State = vram.write(NowEBO, std::vector<uint8_t>(reinterpret_cast<uint8_t*>(EBO.data()), reinterpret_cast<uint8_t*>(EBO.data()) + sizeof(Eigen::Vector3i) * EBO.size()));
         if(!State){
             LOG_ERROR("EBO Data Write in VRAM Failed!");
@@ -108,7 +114,7 @@ int main(int argc, char* argv[]) {
         int width, height, channels;
         std::vector<Eigen::Vector3f> textureData;
         unsigned char* ImgState = stbi_load(testfile.c_str(), &width, &height, &channels, 3);  //这个数组从左到右，从上到下
-
+        LOG_INFO("load texture image!");
         if(!ImgState){
             NowTEX = NULL;
             SDL_Quit();
@@ -127,6 +133,7 @@ int main(int argc, char* argv[]) {
         }
         stbi_image_free(ImgState);
         NowTEX = vram.GetUsedAddr();
+        LOG_INFO("write texture data to VRAM!");
         State = vram.write(NowTEX, std::vector<uint8_t>(reinterpret_cast<uint8_t*>(textureData.data()), reinterpret_cast<uint8_t*>(textureData.data()) + sizeof(Eigen::Vector3f) * textureData.size()));
         if(!State){
             LOG_ERROR("Failed to write texture data to VRAM!");
@@ -148,20 +155,34 @@ int main(int argc, char* argv[]) {
                              };
 
         int MeshTaskAddr = vram.GetUsedAddr();
+        LOG_INFO("Mash Entry Write in VRAM!");
         State = vram.write(MeshTaskAddr, std::vector<uint8_t>(reinterpret_cast<uint8_t*>(&MashTaskone), reinterpret_cast<uint8_t*>(&MashTaskone) + sizeof(MashEntry)));
         if(!State){
             LOG_ERROR("Mash Entry Write in VRAM Failed!");
         }
 
+        Eigen::Matrix4f ViewLoad ;
+        ViewLoad << 1.0f, 0.0f, 0.0f, 0.0f,
+                    0.0f, 1.0f, 0.0f, 0.0f,
+                    0.0f, 0.0f, 1.0f, -10.0f,
+                    0.0f, 0.0f, 0.0f, 1.0f;
+
+        Eigen::Matrix4f ProjectLoad ;
+        ProjectLoad <<  1.81066, 0.0f,     0.0f,      0.0f,
+                        0.0f,    2.41421,  0.0f,      0.0f,
+                        0.0f,    0.0f,    -1.00401f, -0.20040f,
+                        0.0f,    0.0f,    -1.0f,      0.0f;
+
         MashSetup Setupone = {
-            .RotateMatrix = Eigen::Matrix4f::Identity(),
-            .TranslateVector = Eigen::Matrix4f::Identity(),
-            .ScaleVector = Eigen::Matrix4f::Identity(),
-            .ViewMatrix = Eigen::Matrix4f::Identity(),
-            .ProjectionMatrix = Eigen::Matrix4f::Identity()
+            .RotateMatrix = Eigen::Matrix4f::Identity(), //不旋转
+            .TranslateVector = Eigen::Matrix4f::Identity(), //不平移
+            .ScaleVector = Eigen::Matrix4f::Identity(), //不缩放
+            .ViewMatrix =  ViewLoad,
+            .ProjectionMatrix = ProjectLoad
         };
 
         int MeshSetupAddr = vram.GetUsedAddr();
+        LOG_INFO("Mash Setup Write in VRAM!");
         State = vram.write(MeshSetupAddr, std::vector<uint8_t>(reinterpret_cast<uint8_t*>(&Setupone), reinterpret_cast<uint8_t*>(&Setupone) + sizeof(MashSetup)));
         if(!State){
             LOG_ERROR("Mash Setup Write in VRAM Failed!");
@@ -174,6 +195,7 @@ int main(int argc, char* argv[]) {
 
     } 
 #endif 
+
 
     //zbuffer init
     std::vector<float> zdata(WIDTH * HEIGHT, -FLT_MAX);

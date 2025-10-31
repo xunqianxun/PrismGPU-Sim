@@ -1,9 +1,17 @@
+MAKEFLAGS += --no-print-directory
+# === 定义 ===
+DEBUG ?= 
+
 # === 编译器与选项 ===
 CXX := g++
-CXXFLAGS += -std=c++17 -O2 -Wall 
+CXXFLAGS += -std=c++17 -O0 -Wall 
 CXXFLAGS += -I/usr/local/include/eigen3
 CXXFLAGS += -I src
-LDFLAGS := -lSDL2
+LDFLAGS += -lSDL2
+
+ifeq ($(DEBUG), 1)
+CXXFLAGS += -g
+endif
 
 # === 路径 ===
 SRC_DIR := src

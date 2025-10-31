@@ -50,7 +50,7 @@
         Eigen::Vector3f Word3DPoint ;
         Eigen::Vector3f Normal ;
         Eigen::Vector2f TexCoord ;
-        Eigen::Vector2f Color ;
+        Eigen::Vector3f Color ;
     };
 
 

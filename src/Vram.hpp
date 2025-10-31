@@ -45,11 +45,15 @@ struct FrameTask
     int MashEntries;
 };
 
+
 class Vram
 {
     private:
         std::vector<uint8_t> memory;
         const size_t memory_size = 1024 * 1024 * 64; // 64MB VRAM
+
+        //uint8_t memory[1024 * 1024 * 64];
+
         int UsedAddr = 0;
     public:
         Vram() : memory(memory_size, 0) {}
@@ -58,11 +62,13 @@ class Vram
             return UsedAddr;
         }
 
+        //version 1
+
         bool write( int addr, const std::vector<uint8_t>& data) 
         {
-            if (addr < 0 || addr + data.size() > memory_size) {
-                throw std::string("VRAM write out of bounds");  
-                return false; // Address out of bounds
+            if( addr + data.size() > memory_size) {
+                LOG_ERROR("VRAM write out of bounds!");
+                return false;
             }
             std::copy(data.begin(), data.end(), memory.begin() + addr);
             UsedAddr = addr + static_cast<int>(data.size());
@@ -71,18 +77,35 @@ class Vram
 
         bool read(int addr, std::vector<uint8_t>& data, size_t size)
         {
-            if(addr <0 || addr + size > memory_size){
-                throw std::string("VRAM read out of bounds");
-                return false; // Address out of bounds
-            }
             data.resize(size);
             std::copy(memory.begin() + addr, memory.begin() + addr + size, data.begin());
             return true;
-        }
+        }    
 
+        //version 2
 
-          
-        
+        // int write_1byte(int addr, uint8_t data)
+        // {
+        //     if(addr + 1 > sizeof(memory)){
+        //         LOG_ERROR("VRAM write out of bounds!");
+        //         return 0;
+        //     }
+        //     memory[addr] = data;
+        //     UsedAddr = addr + 1;
+        //     return 1;
+        // }
+
+        // int write_2bytes(int addr, uint16_t data)
+        // {
+        //     if(addr + 2 > sizeof(memory)){
+        //         LOG_ERROR("VRAM write out of bounds!");
+        //         return 0;
+        //     }
+        //     *reinterpret_cast<uint16_t*>(memory + addr) = data;
+        //     UsedAddr = addr + 2;
+        //     return 2;
+        // }
+
  };
 
  extern Vram vram;
