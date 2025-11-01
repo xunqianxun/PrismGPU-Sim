@@ -49,14 +49,14 @@ struct FrameTask
 class Vram
 {
     private:
-        std::vector<uint8_t> memory;
-        const size_t memory_size = 1024 * 1024 * 64; // 64MB VRAM
+        uint8_t  memory[1024 * 1024 * 64];
+        //const size_t memory_size = 1024 * 1024 * 64; // 64MB VRAM
 
         //uint8_t memory[1024 * 1024 * 64];
 
         int UsedAddr = 0;
     public:
-        Vram() : memory(memory_size, 0) {}
+        Vram() : UsedAddr(0) {}
 
         int GetUsedAddr() const {
             return UsedAddr;
@@ -66,19 +66,27 @@ class Vram
 
         bool write( int addr, const std::vector<uint8_t>& data) 
         {
-            if( addr + data.size() > memory_size) {
+            if( addr + data.size() > sizeof(memory)) {
                 LOG_ERROR("VRAM write out of bounds!");
                 return false;
             }
-            std::copy(data.begin(), data.end(), memory.begin() + addr);
+            for(size_t i = 0; i < data.size(); ++i) {
+                memory[addr + i] = data[i];
+            }
             UsedAddr = addr + static_cast<int>(data.size());
             return true;
         }
 
         bool read(int addr, std::vector<uint8_t>& data, size_t size)
         {
+            if( addr + size > sizeof(memory)) {
+                LOG_ERROR("VRAM read out of bounds!");
+                return false;
+            }
             data.resize(size);
-            std::copy(memory.begin() + addr, memory.begin() + addr + size, data.begin());
+            for(size_t i = 0; i < size; ++i) {
+                data[i] = memory[addr + i];
+            }
             return true;
         }    
 

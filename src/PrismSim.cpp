@@ -12,6 +12,7 @@
 #define PCIEWORK 
 
  FrameTask FrameOne;
+ Vram vram;
 
 int main(int argc, char* argv[]) {
 
@@ -80,8 +81,6 @@ int main(int argc, char* argv[]) {
         int NowVBO = vram.GetUsedAddr();
         bool State = true;
 
-        
-
         State = vram.write(NowVBO, std::vector<uint8_t>(reinterpret_cast<uint8_t*>(VBO.data()), reinterpret_cast<uint8_t*>(VBO.data()) + sizeof(TestVBO) * VBO.size()));
         LOG_INFO("VBO Data Write in VRAM!");
         if(!State){
@@ -100,7 +99,7 @@ int main(int argc, char* argv[]) {
             // top
             {16, 17, 18},  {16, 18, 19},
             // bottom
-            {20, 21, 22},  {20, 22, 23}
+            {20, 21, 22},  {20, 22, 0}
         };
 
         int NowEBO = vram.GetUsedAddr();
@@ -206,9 +205,10 @@ int main(int argc, char* argv[]) {
 
     SDL_Event event;
     bool running = true;
+    int cont = 0;
     std::vector<Eigen::Vector3f> framebuffer(WIDTH * HEIGHT);
 
-    while (running) {
+    while (running) { //EBO count == 12
         SDL_PollEvent(&event);
             if (event.type == SDL_QUIT) {
                 running = false;
@@ -218,20 +218,24 @@ int main(int argc, char* argv[]) {
         //-----
 
         //TODO: 其次渲染时可以看是否有任务，如果没有任务的话可以一直输当前的已经渲染结果
-        IAToVertex TriAmbToV;
-        VSToRaster VtoRast ;
-        std::vector<RasterToPixel> RasterData;
-        TriAmbToV = InputAssimble(FrameOne);
-        VtoRast = VertexShaderProcess(FrameOne, TriAmbToV);
-        RasterData = RasterizerProcessor(FrameOne, VtoRast);
-        FragementShaderProcess(FrameOne,RasterData);
 
-        std::vector<uint8_t> framebufferi(WIDTH * HEIGHT * sizeof(Eigen::Vector3f));
-        vram.read(FrambufferStart, framebufferi, WIDTH * HEIGHT * sizeof(Eigen::Vector3f));
+        if(cont < 12){
+            cont++ ;
+            IAToVertex TriAmbToV;
+            VSToRaster VtoRast ;
+            std::vector<RasterToPixel> RasterData;
+            TriAmbToV = InputAssimble(FrameOne);
+            VtoRast = VertexShaderProcess(FrameOne, TriAmbToV);
+            RasterData = RasterizerProcessor(FrameOne, VtoRast);
+            FragementShaderProcess(FrameOne,RasterData);
 
-        std::memcpy(framebuffer.data(), framebufferi.data(), WIDTH * HEIGHT * sizeof(Eigen::Vector3f));
+            std::vector<uint8_t> framebufferi(WIDTH * HEIGHT * sizeof(Eigen::Vector3f));
+            vram.read(FrambufferStart, framebufferi, WIDTH * HEIGHT * sizeof(Eigen::Vector3f));
 
-        displayFramebuffer(window, renderer, framebuffer, WIDTH, HEIGHT);
+            std::memcpy(framebuffer.data(), framebufferi.data(), WIDTH * HEIGHT * sizeof(Eigen::Vector3f));
+
+            displayFramebuffer(window, renderer, framebuffer, WIDTH, HEIGHT);
+        }
     }
     // destroy window and quit SDL
     SDL_DestroyWindow(window);

@@ -76,7 +76,6 @@
         vertexProcessor.MatrixLoad(NormalMatrix, "SrcOne");
         vertexProcessor.MatrixLoad(Normal4f, "SrcTwo");
         vertexProcessor.MatrixMulProcess(); 
-        vertexProcessor.GetMatrix(NoProjectResult);
         Eigen::Matrix4f NormalResult ;
         vertexProcessor.GetMatrix(NormalResult);
 

@@ -18,10 +18,14 @@ IAToVertex InputAssimble(const FrameTask& frameTask) {
         throw std::string("Mash Entry Read from VRAM Failed!");
     }   
 
-    std::vector<uint8_t> EBOInAssembleBuffer;
+    std::vector<uint8_t> EBOInAssembleBuffer; 
     std::vector<Eigen::Vector3i> EBODInAssembleData;
-    State = vram.read(MashentriDataIA.EBOOffset, EBOInAssembleBuffer, sizeof(Eigen::Vector3i) * MashentriDataIA.EBOCount);
-    std::memcpy(&EBODInAssembleData, EBOInAssembleBuffer.data(), sizeof(Eigen::Vector3i) * MashentriDataIA.EBOCount);
+
+    int testnumber =  sizeof(Eigen::Vector3i) * MashentriDataIA.EBOCount;
+    EBODInAssembleData.resize(MashentriDataIA.EBOCount);
+
+    State = vram.read(MashentriDataIA.EBOOffset, EBOInAssembleBuffer, testnumber);
+    std::memcpy(EBODInAssembleData.data(), EBOInAssembleBuffer.data(), testnumber);
     if(!State)
     {
         LOG_ERROR("EBO Data Read from VRAM Failed!");
@@ -30,8 +34,11 @@ IAToVertex InputAssimble(const FrameTask& frameTask) {
 
     std::vector<uint8_t> VBOInAssembleBuffer;
     std::vector<TestVBO>  VBODInAssembleData;
+
+    VBODInAssembleData.resize(MashentriDataIA.VBOCount);
+
     State = vram.read(MashentriDataIA.VBOOffset, VBOInAssembleBuffer, sizeof(TestVBO) * MashentriDataIA.VBOCount);
-    std::memcpy(&VBODInAssembleData, VBOInAssembleBuffer.data(), sizeof(TestVBO) * MashentriDataIA.VBOCount);
+    std::memcpy(VBODInAssembleData.data(), VBOInAssembleBuffer.data(), sizeof(TestVBO) * MashentriDataIA.VBOCount);
     if(!State)
     {
         LOG_ERROR("VBO Data Read from VRAM Failed!");
@@ -41,7 +48,7 @@ IAToVertex InputAssimble(const FrameTask& frameTask) {
     TriangleAssemble triAssem; 
     triAssem.col(0) = (VBODInAssembleData[EBODInAssembleData[EBOTriangleCount].x()].positions).homogeneous();
     triAssem.col(1) = (VBODInAssembleData[EBODInAssembleData[EBOTriangleCount].y()].positions).homogeneous();
-    triAssem.col(2) = (VBODInAssembleData[EBODInAssembleData[EBOTriangleCount].z()].positions).homogeneous();
+    triAssem.col(2) = (VBODInAssembleData[EBODInAssembleData[EBOTriangleCount].z()].positions).homogeneous(); // EBOTriangleCount == 11 会出现问题
     triAssem.col(3) = ZeroVec;
 
     Eigen::Matrix3f TriNormal ;

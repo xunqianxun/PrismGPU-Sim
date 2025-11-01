@@ -34,9 +34,10 @@ int FragementShaderProcess(FrameTask &InFramTask, std::vector<RasterToPixel> &In
         PixelData.Word3DPoint = CurrentPixelData.Word3DPoint;
         PixelData.Normal = CurrentPixelData.Normal;
 
-        Eigen::Vector3f ShadedColor = fragmentProcessor.PixelShading(PixelData);
+        Eigen::Vector3f ShadedColor = fragmentProcessor.PixelShading(PixelData, CurrentPixelData.index);
+        int offset = (CurrentPixelData.index.y() * WIDTH + CurrentPixelData.index.x()) * sizeof(Eigen::Vector3f);
 
-        vram.write(FrambufferStart, std::vector<uint8_t>(reinterpret_cast<uint8_t*>(ShadedColor.data()), reinterpret_cast<uint8_t*>(ShadedColor.data()) + sizeof(Eigen::Vector3f))); //也有问题其实直接用3i也是一样的
+        vram.write(FrambufferStart + offset , std::vector<uint8_t>(reinterpret_cast<uint8_t*>(ShadedColor.data()), reinterpret_cast<uint8_t*>(ShadedColor.data()) + sizeof(Eigen::Vector3f))); //也有问题其实直接用3i也是一样的
 
     }
 

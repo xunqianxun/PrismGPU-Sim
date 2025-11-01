@@ -18,11 +18,11 @@ class FragmentProcess{
         Eigen::Vector3f kd ;
         Eigen::Vector3f ks ;
         int Exp ;
-        Eigen::Vector3i lightPos ;
-        Eigen::Vector3i lightintensity ;
+        Eigen::Vector3f lightPos ;
+        Eigen::Vector3f lightintensity ;
         Eigen::Vector3f ambientLight ;
         Eigen::Vector3i viewPos ;
-        Eigen::Vector3f FragColor ;
+        Eigen::Vector3f FragColor ; 
 
     public:
 
@@ -30,8 +30,8 @@ class FragmentProcess{
             ka = Eigen::Vector3f::Identity();
             kd = Eigen::Vector3f::Identity();
             ks = Eigen::Vector3f::Identity();
-            lightPos = Eigen::Vector3i(10, 10, 10); //也是固定了
-            lightintensity = Eigen::Vector3i(500, 500, 500);
+            lightPos = Eigen::Vector3f(20.0f, 20.0f, 20.0f); //也是固定了
+            lightintensity = Eigen::Vector3f(500.0f, 500.0f, 500.0f);
             ambientLight = Eigen::Vector3f(10.0f, 10.0f, 10.0f); 
             viewPos = Eigen::Vector3i(0, 0, 10); //相当于固定相机位置 这也就是说相机位置也被固定了。
         };
@@ -44,28 +44,35 @@ class FragmentProcess{
             return 0;
         }
 
-        Eigen::Vector3f PixelShading(InPixelData &Data) {
+        Eigen::Vector3f PixelShading(InPixelData &Data, Eigen::Vector2i index) {
             Eigen::Vector3f norm = Data.Normal.normalized();
-            Eigen::Vector3f lightDir = (lightPos.cast<float>() - Data.Word3DPoint).normalized();
+            Eigen::Vector3f lightDir = (lightPos - Data.Word3DPoint).normalized();
             Eigen::Vector3f viewDir = (viewPos.cast<float>() - Data.Word3DPoint).normalized();
             Eigen::Vector3f HalfVec = (lightDir + viewDir).normalized();
 
+            Eigen::Vector3f Distence = lightPos - Data.Word3DPoint;
+            float distance2 = Distence.dot(Distence);
+
             float NdotL = norm.dot(lightDir);
             float NdotH = norm.dot(HalfVec);
+
+            Eigen::Vector3f LightDencity = lightintensity / distance2;
+            
 
             // Ambient
             Eigen::Vector3f ambient = ka.cwiseProduct(ambientLight);
 
             // Diffuse
-            Eigen::Vector3f diffuse = kd.cwiseProduct(lightintensity.cast<float>()) * std::max(0.0f, NdotL);
+            Eigen::Vector3f diffuse = kd.cwiseProduct(LightDencity) * std::max(0.0f, NdotL);
 
             // Specular
-            Eigen::Vector3f specular = ks.cwiseProduct(lightintensity.cast<float>()) * std::pow(std::max(0.0f, NdotH), Exp);
+            Eigen::Vector3f specular = ks.cwiseProduct(LightDencity) * std::pow(std::max(0.0f, NdotH), Exp);
 
             FragColor = ambient + diffuse + specular;
 
+            
+            std::cout << "POS2D: "<< index.x() <<","<< index.y() <<" Color: "<< FragColor.x() <<","<< FragColor.y() <<","<< FragColor.z() << std::endl;
             return FragColor * 255.0f;
-
         }
 
 
