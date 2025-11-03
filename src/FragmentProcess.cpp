@@ -19,13 +19,13 @@ int FragementShaderProcess(FrameTask &InFramTask, std::vector<RasterToPixel> &In
 
         int TexBase = MashentriDataPixel.TEXOffset;
 
-        if(TexBase != NULL)
-            CurrentColor = simple.SimpleProcess(
-                TexBase,
-                CurrentPixelData.TexCoord,
-                "TEXTURE"
-            );
-        else 
+        // if(TexBase != NULL)
+        //     CurrentColor = simple.SimpleProcess(
+        //         TexBase,
+        //         CurrentPixelData.TexCoord,
+        //         "TEXTURE"
+        //     );
+        // else 
             CurrentColor = CurrentPixelData.Color;
 
         fragmentProcessor.LoadLightParam(

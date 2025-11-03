@@ -5,7 +5,7 @@ ResterizerProcess Rasterizer;
 float IndexZbufferGet(Eigen::Vector2i Index){
     float DepthData ;
 
-    int ramindex = Index.y() * WIDTH + Index.x();
+    int ramindex = (Index.y() * WIDTH + Index.x()) * sizeof(float);
     int offset = ZbufferStart + ramindex ;
 
     std::vector<uint8_t> bytes;
@@ -15,7 +15,7 @@ float IndexZbufferGet(Eigen::Vector2i Index){
 }
 
 float IndexZbufferSet(Eigen::Vector2i Index, float InDepth){
-    int ramindex = Index.y() * WIDTH + Index.x();
+    int ramindex = (Index.y() * WIDTH + Index.x()) * sizeof(float);
     int offset = ZbufferStart + ramindex ;
 
     std::vector<uint8_t> bytes(sizeof(float));
@@ -23,6 +23,7 @@ float IndexZbufferSet(Eigen::Vector2i Index, float InDepth){
     vram.write(offset, bytes);    
     return InDepth;
 }
+
 
 std::vector<RasterToPixel> RasterizerProcessor(FrameTask &InFramTask, VSToRaster &InTriAmb){
     std::vector<RasterToPixel> ResterReturn;
@@ -59,15 +60,17 @@ std::vector<RasterToPixel> RasterizerProcessor(FrameTask &InFramTask, VSToRaster
 
                 float Zweight = 1.0f / (AlphaW + BetaW + GammaW); //w↑⇒zbuffer​↑,所以可以使用Zweight来进行深度比较
 
-                if(-Zweight > Zdata){
-                    IndexZbufferSet({x,y}, -Zweight);
+                float negZweight = -Zweight ;
+
+                if(negZweight > Zdata){
+                    IndexZbufferSet({x,y}, negZweight);
 
                     RasterToPixel PixelData;
                     PixelData.index = {x, y};
                     PixelData.Word3DPoint = (InVNProj1 * AlphaW + InVNProj2 * BetaW + InVNProj3 * GammaW) * Zweight ;
                     PixelData.Normal = (InTriAmb.Normal.col(0) * AlphaW + InTriAmb.Normal.col(1) * BetaW + InTriAmb.Normal.col(2) * GammaW) * Zweight ;
                     PixelData.TexCoord = (InTriAmb.TexCoord[0] * AlphaW + InTriAmb.TexCoord[1] * BetaW + InTriAmb.TexCoord[2] * GammaW) * Zweight ;
-                    PixelData.Color = (InTriAmb.Color.col(0) * AlphaW + InTriAmb.Color.col(1) * BetaW + InTriAmb.Color.col(2) * GammaW) * Zweight ;
+                    PixelData.Color = ((InTriAmb.Color.col(0) / 255.0f) * AlphaW + (InTriAmb.Color.col(1) / 255.0f) * BetaW + (InTriAmb.Color.col(2) / 255.0f) * GammaW) * Zweight ;
 
                     ResterReturn.push_back(PixelData);
                 }
