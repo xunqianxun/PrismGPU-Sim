@@ -33,7 +33,7 @@ class FragmentProcess{
             lightPos = Eigen::Vector3f(20.0f, 20.0f, 20.0f); //也是固定了
             lightintensity = Eigen::Vector3f(500.0f, 500.0f, 500.0f);
             ambientLight = Eigen::Vector3f(10.0f, 10.0f, 10.0f); 
-            viewPos = Eigen::Vector3i(0, 0, 10); //相当于固定相机位置 这也就是说相机位置也被固定了。
+            viewPos = Eigen::Vector3i(0, 0, 5); //相当于固定相机位置 这也就是说相机位置也被固定了。
         };
 
         int LoadLightParam(Eigen::Vector3f Inka, Eigen::Vector3f Inkd, Eigen::Vector3f Inks, int InExp) {
@@ -70,8 +70,6 @@ class FragmentProcess{
 
             FragColor = ambient + diffuse + specular;
 
-            
-            std::cout << "POS2D: "<< index.x() <<","<< index.y() <<" Color: "<< FragColor.x() <<","<< FragColor.y() <<","<< FragColor.z() << std::endl;
             return FragColor * 255.0f;
         }
 

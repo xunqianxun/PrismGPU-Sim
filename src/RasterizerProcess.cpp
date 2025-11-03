@@ -59,8 +59,8 @@ std::vector<RasterToPixel> RasterizerProcessor(FrameTask &InFramTask, VSToRaster
 
                 float Zweight = 1.0f / (AlphaW + BetaW + GammaW); //w↑⇒zbuffer​↑,所以可以使用Zweight来进行深度比较
 
-                if(Zweight > Zdata){
-                    IndexZbufferSet({x,y}, Zweight);
+                if(-Zweight > Zdata){
+                    IndexZbufferSet({x,y}, -Zweight);
 
                     RasterToPixel PixelData;
                     PixelData.index = {x, y};
