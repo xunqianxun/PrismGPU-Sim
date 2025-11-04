@@ -5,7 +5,7 @@
 #include <mutex>
 
 //TODO: chiose do you want print log to console
-#define LOG_TO_CONSOLE
+//#define LOG_TO_CONSOLE
 
 class Logger {
 private:
@@ -34,6 +34,33 @@ public:
 #endif
     }
 
+    void log2(Level level, const std::string& func, const std::string& ascribe, float &T1, float &T2, float &T3, int &Data1, int &Data2) {
+        std::lock_guard<std::mutex> lock(mtx); //是一个模板类，用于自动管理互斥锁的锁定和释放，为了保证数据的有序性，但是会降低性能，所以选择性的开启DEBUG模式
+        std::stringstream ss;
+        ss << "[" << timestamp() << "] "
+           << "[" << levelToStr(level) << "] "
+           << "[" << func << "] "
+           << "[" << ascribe << "] "
+           << " [ LocalX: " << Data1 << ", LocalY: " << Data2 << "]" << T1 << "," << T2 << "," << T3 << std::endl;
+        file << ss.str();
+#ifdef LOG_TO_CONSOLE
+        std::cout << ss.str();
+#endif
+    }
+
+//     void log3(Level level, const std::string& func, float &T1, float &T2, float &T3, int &Data1, int &Data2) {
+//         std::lock_guard<std::mutex> lock(mtx); //是一个模板类，用于自动管理互斥锁的锁定和释放，为了保证数据的有序性，但是会降低性能，所以选择性的开启DEBUG模式
+//         std::stringstream ss;
+//         ss << "[" << timestamp() << "] "
+//            << "[" << levelToStr(level) << "] "
+//            << "[" << func << "] "
+//            << " [TEXX: " << Data1 << ", TEXY: " << Data2 << "]" << "COLOR_RGB"<< T1 << "," << T2 << "," << T3 << std::endl;
+//         file << ss.str();
+// #ifdef LOG_TO_CONSOLE
+//         std::cout << ss.str();
+// #endif
+//     }
+
     static std::string levelToStr(Level l) {
         switch (l) {
             case INFO: return "INFO";
@@ -56,6 +83,7 @@ public:
 #define LOG_WARN(msg)    logger.log(Logger::WARNING, __FUNCTION__, msg)
 #define LOG_ERROR(msg)   logger.log(Logger::ERROR,   __FUNCTION__, msg)
 #define LOG_DEBUG(msg)   logger.log(Logger::DEBUG,   __FUNCTION__, msg)
-
+#define LOG_DATA(ASB,T1, T2, T3, Data1, Data2) logger.log2(Logger::DEBUG, __FUNCTION__, ASB, T1, T2, T3, Data1, Data2)
+// #define LOG_TEXDATA(T1, T2, T3, Data1, Data2) logger.log3(Logger::DEBUG, __FUNCTION__, T1, T2, T3, Data1, Data2)
 extern Logger logger;
 

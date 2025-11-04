@@ -1,4 +1,6 @@
 #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include "stb_image_resize.h"
 #include "Vram.hpp"
 #include "common.h"
 #include "stb_image.h"
@@ -30,23 +32,15 @@ int main(int argc, char* argv[]) {
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
 #ifdef PCIEWORK
-    if(argc != 2 )
-    {
-        SDL_Quit();
-        LOG_INFO("Usage: ./app <testfile>");
-        return 1;
-    }
-    else 
-    {
-        std::string testfile = argv[1];
+        
 
 
         std::vector<TestVBO> VBO = {
 
-            {{0.5f, -0.5f, -0.5f},     {0.0f, 0.0f,1.0f},   {255.0f, 255.0f, 0.0f},   {0.0f, 0.0f}},  // 1
-            {{-0.5f, -0.5f, -0.5f},    {0.0f, 0.0f,1.0f},   {0.0f, 255.0f, 255.0f},   {1.0f, 0.0f}},  // 2
-            {{-0.5f,  0.5f, -0.5f},    {0.0f, 0.0f,1.0f},   {0.0f, 255.0f, 0.0f},   {1.0f, 1.0f}},  // 3
-            {{0.5f,  0.5f, -0.5f},     {0.0f, 0.0f,1.0f},   {255.0f, 0.0f, 255.0f},   {0.0f, 1.0f}},  // 4
+            {{0.5f, -0.5f, -0.5f},     {0.0f, 0.0f,1.0f},   {255.0f, 255.0f, 0.0f},   {1.0f, 1.0f}},  // 1
+            {{-0.5f, -0.5f, -0.5f},    {0.0f, 0.0f,1.0f},   {0.0f, 255.0f, 255.0f},   {0.0f, 1.0f}},  // 2
+            {{-0.5f,  0.5f, -0.5f},    {0.0f, 0.0f,1.0f},   {0.0f, 255.0f, 0.0f},   {0.0f, 0.0f}},  // 3
+            {{0.5f,  0.5f, -0.5f},     {0.0f, 0.0f,1.0f},   {255.0f, 0.0f, 255.0f},   {1.0f, 0.0f}},  // 4
 
             // -Z 面 (back)  法线 (0,0,-1) 颜色: 绿
             {{0.5f, -0.5f, -1.5f},     {0.0f, 0.0f,-1.0f},   {255.0f, 0.0f, 0.0f},   {0.0f, 0.0f}},  // 4
@@ -111,9 +105,21 @@ int main(int argc, char* argv[]) {
             LOG_ERROR("EBO Data Write in VRAM Failed!");
         } 
 
+        if(argc != 1){
+
+        std::string testfile = argv[1];
+
         int width, height, channels;
         std::vector<Eigen::Vector3f> textureData;
         unsigned char* ImgState = stbi_load(testfile.c_str(), &width, &height, &channels, 3);  //这个数组从左到右，从上到下
+
+        std::vector<unsigned char> resized_image(WIDTH * HEIGHT * channels);
+        stbir_resize_uint8(
+            ImgState, width, height, 0,
+            resized_image.data(), WIDTH, HEIGHT, 0,
+            channels
+        );
+
         LOG_INFO("load texture image!");
         if(!ImgState){
             NowTEX = NULL;
@@ -123,11 +129,11 @@ int main(int argc, char* argv[]) {
             return 1;
         }        
         else {
-            for(int i=0; i<width * height; i++){
+            for(int i=0; i<WIDTH * HEIGHT; i++){
                 Eigen::Vector3f color;
-                color[0] = ImgState[i * 3 + 0] / 255.0f; // R
-                color[1] = ImgState[i * 3 + 1] / 255.0f; // G
-                color[2] = ImgState[i * 3 + 2] / 255.0f; // B
+                color[0] = resized_image[i * 3 + 0] / 255.0f; // R
+                color[1] = resized_image[i * 3 + 1] / 255.0f; // G
+                color[2] = resized_image[i * 3 + 2] / 255.0f; // B
                 textureData.push_back(color);
             }
         }
@@ -139,6 +145,10 @@ int main(int argc, char* argv[]) {
             LOG_ERROR("Failed to write texture data to VRAM!");
             return 1;
         }
+
+    }else {
+        NowTEX = NULL;
+    }
 
         MashEntry MashTaskone = {.TopologyType = TRIANGLE,
                              .EBOOffset = NowEBO,
@@ -193,7 +203,7 @@ int main(int argc, char* argv[]) {
             .MashEntries = MeshTaskAddr
         };
 
-    } 
+
 #endif 
 
 
@@ -230,7 +240,7 @@ int main(int argc, char* argv[]) {
             RasterData = RasterizerProcessor(FrameOne, VtoRast);
             FragementShaderProcess(FrameOne,RasterData);
 
-        // }else {
+        }else {
          std::vector<uint8_t> framebufferi(WIDTH * HEIGHT * sizeof(Eigen::Vector3f));
             vram.read(FrambufferStart, framebufferi, WIDTH * HEIGHT * sizeof(Eigen::Vector3f));
 

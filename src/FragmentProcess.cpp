@@ -8,6 +8,7 @@ int FragementShaderProcess(FrameTask &InFramTask, std::vector<RasterToPixel> &In
     Eigen::Vector3f CurrentColor;
     InPixelData PixelData;
 
+
     std::vector<uint8_t> PixelAmbBuffer;
     int AmbOffset = InFramTask.MashEntries;
     MashEntry MashentriDataPixel;
@@ -19,14 +20,22 @@ int FragementShaderProcess(FrameTask &InFramTask, std::vector<RasterToPixel> &In
 
         int TexBase = MashentriDataPixel.TEXOffset;
 
-        // if(TexBase != NULL)
-        //     CurrentColor = simple.SimpleProcess(
-        //         TexBase,
-        //         CurrentPixelData.TexCoord,
-        //         "TEXTURE"
-        //     );
-        // else 
+        if(TexBase != NULL){
+#ifdef DEBUGING
+            LOG_DATA("纹理坐标",CurrentPixelData.TexCoord.x(), CurrentPixelData.TexCoord.y(), CurrentPixelData.TexCoord.y(), CurrentPixelData.index.x(), CurrentPixelData.index.y());
+#endif
+            CurrentColor = simple.SimpleProcess(
+                TexBase,
+                CurrentPixelData.TexCoord,
+                "TEXTURE"
+            );
+#ifdef DEBUGING
+            LOG_DATA("环境光系数",CurrentColor.x(), CurrentColor.y(), CurrentColor.z(), CurrentPixelData.index.x(), CurrentPixelData.index.y());
+#endif
+        }
+        else {
             CurrentColor = CurrentPixelData.Color;
+        }
 
         fragmentProcessor.LoadLightParam(
             MashentriDataPixel.AmbientColor,
@@ -39,6 +48,9 @@ int FragementShaderProcess(FrameTask &InFramTask, std::vector<RasterToPixel> &In
         PixelData.Normal = CurrentPixelData.Normal;
 
         Eigen::Vector3f ShadedColor = fragmentProcessor.PixelShading(PixelData, CurrentPixelData.index);
+#ifdef DEBUGING
+        LOG_DATA("最终颜色",ShadedColor.x(), ShadedColor.y(), ShadedColor.z(), CurrentPixelData.index.x(), CurrentPixelData.index.y());
+#endif
         int offset = (CurrentPixelData.index.y() * WIDTH + CurrentPixelData.index.x()) * sizeof(Eigen::Vector3f);
 
         vram.write(FrambufferStart + offset , std::vector<uint8_t>(reinterpret_cast<uint8_t*>(ShadedColor.data()), reinterpret_cast<uint8_t*>(ShadedColor.data()) + sizeof(Eigen::Vector3f))); //也有问题其实直接用3i也是一样的

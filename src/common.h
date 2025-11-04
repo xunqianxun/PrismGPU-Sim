@@ -11,6 +11,8 @@
 
 #define TEMPTEST 
 
+#define DEBUGING
+
     enum TopologyType {
         POIN = 0,
         LINE = 1,

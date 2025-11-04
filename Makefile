@@ -43,4 +43,5 @@ run: $(TARGET)
 .PHONY: clean
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
+	truncate -s 0 log.txt
 	@echo "Cleaned build files"
